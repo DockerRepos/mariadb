@@ -1,0 +1,39 @@
+version: "3.7"
+
+networks:
+  default:
+    name: database_net
+    driver: bridge
+  proxy_net:
+    name: proxy
+    external: true
+
+services:
+  mariadb:
+    image: mariadb:10.6.1-focal
+    restart: always
+    volumes: 
+     - mariadb_volume:/var/lib/mysql 
+    environment:
+     MYSQL_ROOT_PASSWORD: mypass
+    networks: 
+      - default
+
+  myadmin:
+    image: phpmyadmin:5.1.0-apache
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+    links:
+      - mariadb
+    depends_on:
+      - mariadb
+    networks:
+      - default
+      - proxy_net
+    ports:
+      - 8181:80
+
+volumes:
+  mariadb_volume:
+
